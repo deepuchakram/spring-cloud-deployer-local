@@ -58,7 +58,7 @@ public class JavaCommandBuilder implements CommandBuilder {
 	@Override
 	public String[] buildExecutionCommand(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
 			Optional<Integer> appInstanceNumber) {
-		ArrayList<String> commands = new ArrayList<String>();
+		ArrayList<String> commands = new ArrayList<>();
 		Map<String, String> deploymentProperties = request.getDeploymentProperties();
 		commands.add(properties.getJavaCmd());
 		// Add Java System Properties (ie -Dmy.prop=val) before main class or -jar
@@ -84,7 +84,7 @@ public class JavaCommandBuilder implements CommandBuilder {
 
 		if (javaOptsString != null) {
 			String[] javaOpts = StringUtils.tokenizeToStringArray(javaOptsString, " ");
-			boolean noJavaMemoryOption = !Stream.of(javaOpts).anyMatch(s -> s.startsWith("-Xmx"));
+			boolean noJavaMemoryOption = Stream.of(javaOpts).noneMatch(s -> s.startsWith("-Xmx"));
 			if (noJavaMemoryOption && memory != null) {
 				commands.add(memory);
 			}

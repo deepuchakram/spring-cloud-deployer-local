@@ -55,7 +55,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public abstract class AbstractLocalDeployerSupport {
 
-	public static final String USE_SPRING_APPLICATION_JSON_KEY =
+	private static final String USE_SPRING_APPLICATION_JSON_KEY =
 			LocalDeployerProperties.PREFIX + ".use-spring-application-json";
 
 	public static final String SPRING_APPLICATION_JSON = "SPRING_APPLICATION_JSON";
@@ -91,15 +91,18 @@ public abstract class AbstractLocalDeployerSupport {
 			int instanceIndex, int port) {
 		String ds = deploymentProperties.getOrDefault(LocalDeployerProperties.DEBUG_SUSPEND, "y");
 		StringBuilder debugCommandBuilder = new StringBuilder();
-		String debugCommand;
+
 		logger.warn("Deploying app with deploymentId {}, instance {}. Remote debugging is enabled on port {}.",
 				deploymentId, instanceIndex, port);
+
 		debugCommandBuilder.append("-agentlib:jdwp=transport=dt_socket,server=y,suspend=");
 		debugCommandBuilder.append(ds.trim());
 		debugCommandBuilder.append(",address=");
 		debugCommandBuilder.append(port);
-		debugCommand = debugCommandBuilder.toString();
+
+		String debugCommand = debugCommandBuilder.toString();
 		logger.debug("Deploying app with deploymentId {}, instance {}.  Debug Command = [{}]", debugCommand);
+
 		if (ds.equals("y")) {
 			logger.warn("Deploying app with deploymentId {}.  Application Startup will be suspended until remote "
 					+ "debugging session is established.");
@@ -162,7 +165,9 @@ public abstract class AbstractLocalDeployerSupport {
 	}
 
 	/**
-	 * Builds the process builder.
+	 * Builds the process builder.  Application properties are expected to be calculated
+	 * prior to this method.  No additional consolidation of application properties is
+	 * done while creating the {@code ProcessBuilder}.
 	 *
 	 * @param request the request
 	 * @param appInstanceEnv the instance environment variables
@@ -202,7 +207,7 @@ public abstract class AbstractLocalDeployerSupport {
 
 		if (this.containsValidDebugPort(request.getDeploymentProperties(), deploymentId)) {
 
-			int portToUse = calculateDebugPort(request.getDeploymentProperties(), appInstanceNumber.orElseGet(() -> 0));
+			int portToUse = calculateDebugPort(request.getDeploymentProperties(), appInstanceNumber.orElse(0));
 
 			builder.command().add(1, this.buildRemoteDebugInstruction(
 					request.getDeploymentProperties(),
