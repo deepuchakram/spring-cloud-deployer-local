@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
@@ -45,7 +44,6 @@ import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.core.RuntimeEnvironmentInfo;
-import org.springframework.util.SocketUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -72,8 +70,6 @@ public class LocalAppDeployer extends AbstractLocalDeployerSupport implements Ap
 	private static final String JMX_DEFAULT_DOMAIN_KEY = "spring.jmx.default-domain";
 
 	private static final String ENDPOINTS_SHUTDOWN_ENABLED_KEY = "endpoints.shutdown.enabled";
-
-	private static final int DEFAULT_SERVER_PORT = 8080;
 
 	private final Map<String, List<AppInstance>> running = new ConcurrentHashMap<>();
 
@@ -207,15 +203,6 @@ public class LocalAppDeployer extends AbstractLocalDeployerSupport implements Ap
 		for (String deploymentId : running.keySet()) {
 			undeploy(deploymentId);
 		}
-	}
-
-	private int calcServerPort(AppDeploymentRequest request, boolean useDynamicPort, Map<String, String> args) {
-		int port = useDynamicPort ? SocketUtils.findAvailableTcpPort(DEFAULT_SERVER_PORT)
-				: Integer.parseInt(request.getDefinition().getProperties().get(SERVER_PORT_KEY));
-		if (useDynamicPort) {
-			args.put(SERVER_PORT_KEY, String.valueOf(port));
-		}
-		return port;
 	}
 
 	private Path createWorkingDir(String deploymentId, Path deploymentGroupDir) throws IOException {

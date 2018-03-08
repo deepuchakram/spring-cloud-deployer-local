@@ -39,7 +39,6 @@ import org.springframework.cloud.deployer.spi.core.RuntimeEnvironmentInfo;
 import org.springframework.cloud.deployer.spi.task.LaunchState;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
 import org.springframework.cloud.deployer.spi.task.TaskStatus;
-import org.springframework.util.SocketUtils;
 
 /**
  * A {@link TaskLauncher} implementation that spins off a new JVM process per task launch.
@@ -94,7 +93,9 @@ public class LocalTaskLauncher extends AbstractLocalDeployerSupport implements T
 
 			Path workDir = createWorkingDir(taskLaunchId, dir);
 
-			int port = calculateServerPort(request, args);
+			boolean useDynamicPort = isDynamicPort(request);
+
+			int port = calcServerPort(request, useDynamicPort, args);
 
 			ProcessBuilder builder = buildProcessBuilder(request, args, Optional.empty(), taskLaunchId);
 
@@ -114,6 +115,12 @@ public class LocalTaskLauncher extends AbstractLocalDeployerSupport implements T
 		}
 
 		return taskLaunchId;
+	}
+
+	private boolean isDynamicPort(AppDeploymentRequest request) {
+		boolean isServerPortKeyonArgs = isServerPortKeyPresentOnArgs(request);
+		return !request.getDefinition().getProperties().containsKey(SERVER_PORT_KEY)
+				&& !isServerPortKeyonArgs;
 	}
 
 	@Override
@@ -154,28 +161,6 @@ public class LocalTaskLauncher extends AbstractLocalDeployerSupport implements T
 		for (String taskLaunchId : running.keySet()) {
 			cancel(taskLaunchId);
 		}
-	}
-
-	private int calculateServerPort(AppDeploymentRequest request, HashMap<String, String> args) {
-		boolean isServerPortKeyonArgs = isServerPortKeyPresentOnArgs(request);
-
-		boolean useDynamicPort = !request.getDefinition().getProperties().containsKey(SERVER_PORT_KEY)
-				&& !isServerPortKeyonArgs;
-
-		int port;
-
-		if(useDynamicPort) {
-			port = SocketUtils.findAvailableTcpPort(DEFAULT_SERVER_PORT);
-			args.put(SERVER_PORT_KEY, String.valueOf(port));
-		}
-		else if(isServerPortKeyonArgs){
-			port = getServerPortArg(request);
-		}
-		else {
-			port = Integer.parseInt(request.getDefinition().getProperties().get(SERVER_PORT_KEY));
-		}
-
-		return port;
 	}
 
 	private Path createWorkingDir(String taskLaunchId, Path dir) throws IOException {
