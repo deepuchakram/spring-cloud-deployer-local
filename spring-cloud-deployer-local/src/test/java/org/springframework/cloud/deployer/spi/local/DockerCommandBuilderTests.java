@@ -63,7 +63,7 @@ public class DockerCommandBuilderTests {
 		deploymentProperties.put(LocalDeployerProperties.DEBUG_SUSPEND, "y");
 		deploymentProperties.put(LocalDeployerProperties.INHERIT_LOGGING, "true");
 		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource, deploymentProperties);
-		ProcessBuilder builder = deployer.buildProcessBuilder(request, new HashMap<>(0), Optional.of(1), "foo" );
+		ProcessBuilder builder = deployer.buildProcessBuilder(request, request.getDefinition().getProperties(), Optional.of(1), "foo" );
 
 		String SAJ = LocalDeployerUtils.isWindows() ? "SPRING_APPLICATION_JSON={\\\"foo\\\":\\\"bar\\\"}" : "SPRING_APPLICATION_JSON={\"foo\":\"bar\"}";
 		assertThat(builder.command(), hasItems("-e", SAJ));

@@ -172,9 +172,9 @@ public abstract class AbstractLocalDeployerSupport {
 												Optional<Integer> appInstanceNumber, String deploymentId) {
 		Assert.notNull(request, "AppDeploymentRequest must be set");
 		String[] commands;
-//		Map<String, String> appInstanceEnvToUse = new HashMap<>(request.getDefinition().getProperties());
-		Map<String, String> appPropertiesToUse;
-		appPropertiesToUse = handleAppPropertiesPassing(request, appInstanceEnv);
+
+		Map<String, String> appPropertiesToUse =
+				formatApplicationProperties(request, appInstanceEnv);
 
 		if (request.getResource() instanceof DockerResource) {
 			commands = this.dockerCommandBuilder.buildExecutionCommand(request,
@@ -215,11 +215,10 @@ public abstract class AbstractLocalDeployerSupport {
 		return builder;
 	}
 
-	protected Map<String, String> handleAppPropertiesPassing(AppDeploymentRequest request,
+	protected Map<String, String> formatApplicationProperties(AppDeploymentRequest request,
 											Map<String, String> appInstanceEnvToUse) {
 		Map<String, String> applicationPropertiesToUse =
-				new HashMap<>(request.getDefinition().getProperties());
-		applicationPropertiesToUse.putAll(appInstanceEnvToUse);
+				new HashMap<>(appInstanceEnvToUse);
 
 		if (useSpringApplicationJson(request)) {
 			try {

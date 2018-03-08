@@ -55,7 +55,7 @@ public class LocalDeployerSupportTests {
 //
 //		HashMap<String, String> envVarsToUse = new HashMap<>();
 //		HashMap<String, String> appPropsToUse = new HashMap<>();
-//		Map<String, String> applicationProperties = localDeployerSupport.handleAppPropertiesPassing(appDeploymentRequest,
+//		Map<String, String> applicationProperties = localDeployerSupport.formatApplicationProperties(appDeploymentRequest,
 //				envVarsToUse);
 //
 //		assertThat(appPropsToUse.size(), is(2));
@@ -68,12 +68,10 @@ public class LocalDeployerSupportTests {
 	public void testAppPropsAsSAJ() throws MalformedURLException {
 		AppDeploymentRequest appDeploymentRequest = createAppDeploymentRequest();
 
-		HashMap<String, String> envVarsToUse = new HashMap<>();
-		HashMap<String, String> appPropsToUse = new HashMap<>();
-		Map<String, String> environmentVariables = localDeployerSupport.handleAppPropertiesPassing(appDeploymentRequest,
+		HashMap<String, String> envVarsToUse = new HashMap<>(appDeploymentRequest.getDefinition().getProperties());
+		Map<String, String> environmentVariables = localDeployerSupport.formatApplicationProperties(appDeploymentRequest,
 				envVarsToUse);
 
-		assertThat(appPropsToUse.size(), is(0));
 		assertThat(environmentVariables.size(), is(1));
 		assertThat(environmentVariables.keySet(), hasItem(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON));
 		assertThat(environmentVariables.get(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON), is("{\"test.foo\":\"foo\",\"test.bar\":\"bar\"}"));

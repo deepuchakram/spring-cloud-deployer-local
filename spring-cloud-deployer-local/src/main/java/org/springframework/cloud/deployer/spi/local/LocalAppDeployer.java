@@ -105,18 +105,21 @@ public class LocalAppDeployer extends AbstractLocalDeployerSupport implements Ap
 
 		boolean useDynamicPort = !request.getDefinition().getProperties().containsKey(SERVER_PORT_KEY);
 
-		HashMap<String, String> localProperties = new HashMap<>(request.getDefinition().getProperties());
+		// consolidatedAppProperties is a Map of all application properties to be used by
+		// the app being launched.  These values should end up as environment variables
+		// either explicitly or as a SPRING_APPLICATION_JSON value.
+		HashMap<String, String> consolidatedAppProperties = new HashMap<>(request.getDefinition().getProperties());
 
-		localProperties.put(JMX_DEFAULT_DOMAIN_KEY, deploymentId);
+		consolidatedAppProperties.put(JMX_DEFAULT_DOMAIN_KEY, deploymentId);
 
 		if (!request.getDefinition().getProperties().containsKey(ENDPOINTS_SHUTDOWN_ENABLED_KEY)) {
-			localProperties.put(ENDPOINTS_SHUTDOWN_ENABLED_KEY, "true");
+			consolidatedAppProperties.put(ENDPOINTS_SHUTDOWN_ENABLED_KEY, "true");
 		}
 
-		localProperties.put("endpoints.jmx.unique-names", "true");
+		consolidatedAppProperties.put("endpoints.jmx.unique-names", "true");
 
 		if (group != null) {
-			localProperties.put("spring.cloud.application.group", group);
+			consolidatedAppProperties.put("spring.cloud.application.group", group);
 		}
 
 		try {
@@ -129,7 +132,9 @@ public class LocalAppDeployer extends AbstractLocalDeployerSupport implements Ap
 
 			for (int i = 0; i < count; i++) {
 
-				Map<String, String> appInstanceEnv = new HashMap<>(localProperties);
+				// This Map is the consolidated application properties *for the instance*
+				// to be deployed in this iteration
+				Map<String, String> appInstanceEnv = new HashMap<>(consolidatedAppProperties);
 
 				int port = calcServerPort(request, useDynamicPort, appInstanceEnv);
 
