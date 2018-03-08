@@ -49,10 +49,6 @@ public class DockerCommandBuilder implements CommandBuilder {
 	public String[] buildExecutionCommand(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
 										  Optional<Integer> appInstanceNumber) {
 		List<String> commands = addDockerOptions(request, appInstanceEnv, appInstanceNumber);
-		// Add appProperties
-//		for (String prop : appProperties.keySet()) {
-//			commands.add(String.format("--%s=%s", prop, appProperties.get(prop)));
-//		}
 		commands.addAll(request.getCommandlineArguments());
 		logger.debug("Docker Command = " + commands);
 		return commands.toArray(new String[0]);
@@ -63,16 +59,13 @@ public class DockerCommandBuilder implements CommandBuilder {
 		List<String> commands = new ArrayList<>();
 		commands.add("docker");
 		commands.add("run");
+
 		// Add env vars
 		for (String env : appInstanceEnv.keySet()) {
 			commands.add("-e");
 			commands.add(String.format("%s=%s", env, appInstanceEnv.get(env)));
 		}
-//		if (appProperties.containsKey(LocalAppDeployer.SERVER_PORT_KEY)) {
-//			String port = appProperties.get(LocalAppDeployer.SERVER_PORT_KEY);
-//			commands.add("-p");
-//			commands.add(String.format("%s:%s", port, port));
-//		}
+
 		if(request.getDeploymentProperties().containsKey(DOCKER_CONTAINER_NAME_KEY)) {
 			if(appInstanceNumber.isPresent()) {
 				commands.add(String.format("--name=%s-%d", request.getDeploymentProperties().get(DOCKER_CONTAINER_NAME_KEY), appInstanceNumber.get()));
@@ -80,7 +73,9 @@ public class DockerCommandBuilder implements CommandBuilder {
 				commands.add(String.format("--name=%s", request.getDeploymentProperties().get(DOCKER_CONTAINER_NAME_KEY)));
 			}
 		}
+
 		DockerResource dockerResource = (DockerResource) request.getResource();
+
 		try {
 			String dockerImageURI = dockerResource.getURI().toString();
 			commands.add(dockerImageURI.substring("docker:".length()));
@@ -88,6 +83,7 @@ public class DockerCommandBuilder implements CommandBuilder {
 		catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
+
 		return commands;
 	}
 }

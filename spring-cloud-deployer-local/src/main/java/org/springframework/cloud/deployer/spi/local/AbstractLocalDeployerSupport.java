@@ -196,7 +196,6 @@ public abstract class AbstractLocalDeployerSupport {
 
 		if (!(request.getResource() instanceof DockerResource)) {
 			builder.environment().putAll(appPropertiesToUse);
-//			builder.environment().putAll(appInstanceEnvToUse);
 		}
 
 		retainEnvVars(builder.environment().keySet());
@@ -228,8 +227,8 @@ public abstract class AbstractLocalDeployerSupport {
 					applicationPropertiesToUse.remove(SPRING_APPLICATION_JSON);
 				}
 
-				applicationPropertiesToUse = Collections.singletonMap(
-						SPRING_APPLICATION_JSON, OBJECT_MAPPER.writeValueAsString(applicationPropertiesToUse));
+				applicationPropertiesToUse = new HashMap<>(1);
+				applicationPropertiesToUse.put(SPRING_APPLICATION_JSON, OBJECT_MAPPER.writeValueAsString(applicationPropertiesToUse));
 			}
 			catch (IOException e) {
 				throw new RuntimeException(e);
