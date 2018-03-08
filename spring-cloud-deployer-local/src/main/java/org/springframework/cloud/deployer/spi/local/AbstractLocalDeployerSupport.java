@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Thomas Risberg
  * @author Oleg Zhurakousky
  * @author Vinicius Carvalho
+ * @author Michael Minella
  */
 public abstract class AbstractLocalDeployerSupport {
 
@@ -227,8 +227,11 @@ public abstract class AbstractLocalDeployerSupport {
 					applicationPropertiesToUse.remove(SPRING_APPLICATION_JSON);
 				}
 
+				String saj = OBJECT_MAPPER.writeValueAsString(applicationPropertiesToUse);
+
 				applicationPropertiesToUse = new HashMap<>(1);
-				applicationPropertiesToUse.put(SPRING_APPLICATION_JSON, OBJECT_MAPPER.writeValueAsString(applicationPropertiesToUse));
+
+				applicationPropertiesToUse.put(SPRING_APPLICATION_JSON, saj);
 			}
 			catch (IOException e) {
 				throw new RuntimeException(e);

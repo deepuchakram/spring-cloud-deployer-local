@@ -50,6 +50,7 @@ import org.springframework.util.SocketUtils;
  * @author Janne Valkealahti
  * @author Thomas Risberg
  * @author Oleg Zhurakousky
+ * @author Michael Minella
  */
 public class LocalTaskLauncher extends AbstractLocalDeployerSupport implements TaskLauncher {
 
