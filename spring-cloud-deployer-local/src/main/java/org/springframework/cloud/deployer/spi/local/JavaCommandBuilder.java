@@ -56,7 +56,8 @@ public class JavaCommandBuilder implements CommandBuilder {
 
 	@Override
 	public String[] buildExecutionCommand(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
-										  Map<String, String> appProperties, Optional<Integer> appInstanceNumber) {
+			Map<String, String> appProperties,
+			Optional<Integer> appInstanceNumber) {
 		ArrayList<String> commands = new ArrayList<String>();
 		Map<String, String> deploymentProperties = request.getDeploymentProperties();
 		commands.add(properties.getJavaCmd());
@@ -64,7 +65,7 @@ public class JavaCommandBuilder implements CommandBuilder {
 		addJavaOptions(commands, deploymentProperties, properties);
 		addJavaExecutionOptions(commands, request);
 		// Add appProperties
-		for (String prop : appProperties.keySet()) {
+		for (String prop : appInstanceEnv.keySet()) {
 			commands.add(String.format("--%s=%s", prop, appProperties.get(prop)));
 		}
 		commands.addAll(request.getCommandlineArguments());

@@ -177,7 +177,7 @@ public class JavaExecutionCommandBuilderTests {
         AppDeploymentRequest request = new AppDeploymentRequest(definition, testResource(), deploymentProperties);
 
 
-        ProcessBuilder builder = deployer.buildProcessBuilder(request, Collections.emptyMap(), request.getDefinition().getProperties(), Optional.of(1), "foo" );
+        ProcessBuilder builder = deployer.buildProcessBuilder(request, new HashMap<>(0), Optional.of(1), "foo" );
         assertThat(builder.environment().keySet(), hasItem(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON));
         assertThat(builder.environment().get(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON), is("{\"foo\":\"bar\"}"));
     }
@@ -197,7 +197,7 @@ public class JavaExecutionCommandBuilderTests {
         AppDeploymentRequest request = new AppDeploymentRequest(definition, testResource(), deploymentProperties);
 
 
-        ProcessBuilder builder = deployer.buildProcessBuilder(request, Collections.emptyMap(), request.getDefinition().getProperties(), Optional.of(1), "foo" );
+        ProcessBuilder builder = deployer.buildProcessBuilder(request, new HashMap<>(0), Optional.of(1), "foo" );
         assertThat(builder.environment().keySet(), hasItem(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON));
         assertThat(builder.environment().get(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON), is("{\"foo\":\"bar\",\"debug\":\"true\"}"));
 

@@ -166,24 +166,23 @@ public abstract class AbstractLocalDeployerSupport {
 	 *
 	 * @param request the request
 	 * @param appInstanceEnv the instance environment variables
-	 * @param appProperties the app properties
 	 * @return the process builder
 	 */
 	protected ProcessBuilder buildProcessBuilder(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
-												Map<String, String> appProperties, Optional<Integer> appInstanceNumber, String deploymentId) {
+												Optional<Integer> appInstanceNumber, String deploymentId) {
 		Assert.notNull(request, "AppDeploymentRequest must be set");
-		Assert.notNull(appProperties, "Args must be set");
-		String[] commands = null;
-		Map<String, String> appInstanceEnvToUse = new HashMap<>(appInstanceEnv);
-		Map<String, String> appPropertiesToUse = new HashMap<>();
-		handleAppPropertiesPassing(request, appProperties, appInstanceEnvToUse, appPropertiesToUse);
+		String[] commands;
+//		Map<String, String> appInstanceEnvToUse = new HashMap<>(request.getDefinition().getProperties());
+		Map<String, String> appPropertiesToUse;
+		appPropertiesToUse = handleAppPropertiesPassing(request, appInstanceEnv);
+
 		if (request.getResource() instanceof DockerResource) {
 			commands = this.dockerCommandBuilder.buildExecutionCommand(request,
-					appInstanceEnvToUse, appPropertiesToUse, appInstanceNumber);
+					appPropertiesToUse, Collections.emptyMap(), appInstanceNumber);
 		}
 		else {
 			commands = this.javaCommandBuilder.buildExecutionCommand(request,
-					appInstanceEnvToUse, appPropertiesToUse, appInstanceNumber);
+					appPropertiesToUse, Collections.emptyMap(), appInstanceNumber);
 		}
 
 		// tweak escaping double quotes needed for windows
@@ -194,45 +193,51 @@ public abstract class AbstractLocalDeployerSupport {
 		}
 
 		ProcessBuilder builder = new ProcessBuilder(commands);
+
 		if (!(request.getResource() instanceof DockerResource)) {
-			builder.environment().putAll(appInstanceEnv);
-			builder.environment().putAll(appInstanceEnvToUse);
+			builder.environment().putAll(appPropertiesToUse);
+//			builder.environment().putAll(appInstanceEnvToUse);
 		}
+
 		retainEnvVars(builder.environment().keySet());
 
 		if (this.containsValidDebugPort(request.getDeploymentProperties(), deploymentId)) {
+
 			int portToUse = calculateDebugPort(request.getDeploymentProperties(), appInstanceNumber.orElseGet(() -> 0));
+
 			builder.command().add(1, this.buildRemoteDebugInstruction(
 					request.getDeploymentProperties(),
 					deploymentId,
-					appInstanceNumber.orElseGet(() -> 0),
+					appInstanceNumber.orElse(0),
 					portToUse));
 		}
 
 		return builder;
 	}
 
-	protected void handleAppPropertiesPassing(AppDeploymentRequest request, Map<String, String> appProperties,
-											Map<String, String> appInstanceEnvToUse,
-											Map<String, String> appPropertiesToUse) {
+	protected Map<String, String> handleAppPropertiesPassing(AppDeploymentRequest request,
+											Map<String, String> appInstanceEnvToUse) {
+		Map<String, String> applicationPropertiesToUse =
+				new HashMap<>(request.getDefinition().getProperties());
+		applicationPropertiesToUse.putAll(appInstanceEnvToUse);
+
 		if (useSpringApplicationJson(request)) {
 			try {
 				//If SPRING_APPLICATION_JSON is found, explode it and merge back into appProperties
-				Map<String, String> localApplicationProperties = new HashMap<>(appProperties);
-				if(localApplicationProperties.containsKey(SPRING_APPLICATION_JSON)){
-					localApplicationProperties.putAll(OBJECT_MAPPER.readValue(appProperties.get(SPRING_APPLICATION_JSON), new TypeReference<HashMap<String,Object>>() {}));
-					localApplicationProperties.remove(SPRING_APPLICATION_JSON);
+				if(applicationPropertiesToUse.containsKey(SPRING_APPLICATION_JSON)){
+					applicationPropertiesToUse.putAll(OBJECT_MAPPER.readValue(applicationPropertiesToUse.get(SPRING_APPLICATION_JSON), new TypeReference<HashMap<String,Object>>() {}));
+					applicationPropertiesToUse.remove(SPRING_APPLICATION_JSON);
 				}
-				appInstanceEnvToUse.putAll(Collections.singletonMap(
-						SPRING_APPLICATION_JSON, OBJECT_MAPPER.writeValueAsString(localApplicationProperties)));
+
+				applicationPropertiesToUse = Collections.singletonMap(
+						SPRING_APPLICATION_JSON, OBJECT_MAPPER.writeValueAsString(applicationPropertiesToUse));
 			}
 			catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		else {
-			appPropertiesToUse.putAll(appProperties);
-		}
+
+		return applicationPropertiesToUse;
 	}
 
 	/**
@@ -323,9 +328,14 @@ public abstract class AbstractLocalDeployerSupport {
 	}
 
 	private boolean useSpringApplicationJson(AppDeploymentRequest request) {
-		return Optional.ofNullable(request.getDeploymentProperties().get(USE_SPRING_APPLICATION_JSON_KEY))
-				.map(Boolean::valueOf)
-				.orElse(this.properties.isUseSpringApplicationJson());
+		Map<String, String> applicationProperties = request.getDefinition().getProperties();
+
+		if(applicationProperties.containsKey(USE_SPRING_APPLICATION_JSON_KEY)) {
+			return applicationProperties.containsKey(USE_SPRING_APPLICATION_JSON_KEY);
+		}
+		else {
+			return this.properties.isUseSpringApplicationJson();
+		}
 	}
 
 	protected interface Instance {

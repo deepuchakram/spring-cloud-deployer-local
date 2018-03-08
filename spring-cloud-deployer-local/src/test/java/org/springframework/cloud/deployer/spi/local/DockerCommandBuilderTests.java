@@ -28,7 +28,7 @@ import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.core.io.Resource;
 
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.collection.IsArrayContainingInOrder.arrayContaining;
 import static org.junit.Assert.assertThat;
 
@@ -63,7 +63,7 @@ public class DockerCommandBuilderTests {
 		deploymentProperties.put(LocalDeployerProperties.DEBUG_SUSPEND, "y");
 		deploymentProperties.put(LocalDeployerProperties.INHERIT_LOGGING, "true");
 		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource, deploymentProperties);
-		ProcessBuilder builder = deployer.buildProcessBuilder(request, Collections.emptyMap(), request.getDefinition().getProperties(), Optional.of(1), "foo" );
+		ProcessBuilder builder = deployer.buildProcessBuilder(request, new HashMap<>(0), Optional.of(1), "foo" );
 
 		String SAJ = LocalDeployerUtils.isWindows() ? "SPRING_APPLICATION_JSON={\\\"foo\\\":\\\"bar\\\"}" : "SPRING_APPLICATION_JSON={\"foo\":\"bar\"}";
 		assertThat(builder.command(), hasItems("-e", SAJ));
