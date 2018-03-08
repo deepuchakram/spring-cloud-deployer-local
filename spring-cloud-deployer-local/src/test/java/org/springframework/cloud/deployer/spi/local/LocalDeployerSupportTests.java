@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,23 +46,6 @@ public class LocalDeployerSupportTests {
 		localDeployerProperties = new LocalDeployerProperties();
 		localDeployerSupport = new AbstractLocalDeployerSupport(this.localDeployerProperties) {};
 	}
-//
-//	@Test
-//	public void testAppPropsAsCommandLineArgs() throws MalformedURLException {
-//		Map<String, String>  deploymentProperties = new HashMap<>();
-//		deploymentProperties.put("spring.cloud.deployer.local.use-spring-application-json", "false");
-//		AppDeploymentRequest appDeploymentRequest = createAppDeploymentRequest(deploymentProperties);
-//
-//		HashMap<String, String> envVarsToUse = new HashMap<>();
-//		HashMap<String, String> appPropsToUse = new HashMap<>();
-//		Map<String, String> applicationProperties = localDeployerSupport.formatApplicationProperties(appDeploymentRequest,
-//				envVarsToUse);
-//
-//		assertThat(appPropsToUse.size(), is(2));
-//		assertThat(applicationProperties.size(), is(0));
-//		assertThat(appPropsToUse.get("test.foo"), is("foo"));
-//		assertThat(appPropsToUse.get("test.bar"), is("bar"));
-//	}
 
 	@Test
 	public void testAppPropsAsSAJ() throws MalformedURLException {
