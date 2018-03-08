@@ -47,19 +47,19 @@ public class DockerCommandBuilder implements CommandBuilder {
 
 	@Override
 	public String[] buildExecutionCommand(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
-										  Map<String, String> appProperties, Optional<Integer> appInstanceNumber) {
-		List<String> commands = addDockerOptions(request, appInstanceEnv, appProperties, appInstanceNumber);
+										  Optional<Integer> appInstanceNumber) {
+		List<String> commands = addDockerOptions(request, appInstanceEnv, appInstanceNumber);
 		// Add appProperties
-		for (String prop : appProperties.keySet()) {
-			commands.add(String.format("--%s=%s", prop, appProperties.get(prop)));
-		}
+//		for (String prop : appProperties.keySet()) {
+//			commands.add(String.format("--%s=%s", prop, appProperties.get(prop)));
+//		}
 		commands.addAll(request.getCommandlineArguments());
 		logger.debug("Docker Command = " + commands);
 		return commands.toArray(new String[0]);
 	}
 
 	private List<String> addDockerOptions(AppDeploymentRequest request, Map<String, String> appInstanceEnv,
-										  Map<String, String> appProperties, Optional<Integer> appInstanceNumber) {
+										  Optional<Integer> appInstanceNumber) {
 		List<String> commands = new ArrayList<>();
 		commands.add("docker");
 		commands.add("run");
@@ -68,11 +68,11 @@ public class DockerCommandBuilder implements CommandBuilder {
 			commands.add("-e");
 			commands.add(String.format("%s=%s", env, appInstanceEnv.get(env)));
 		}
-		if (appProperties.containsKey(LocalAppDeployer.SERVER_PORT_KEY)) {
-			String port = appProperties.get(LocalAppDeployer.SERVER_PORT_KEY);
-			commands.add("-p");
-			commands.add(String.format("%s:%s", port, port));
-		}
+//		if (appProperties.containsKey(LocalAppDeployer.SERVER_PORT_KEY)) {
+//			String port = appProperties.get(LocalAppDeployer.SERVER_PORT_KEY);
+//			commands.add("-p");
+//			commands.add(String.format("%s:%s", port, port));
+//		}
 		if(request.getDeploymentProperties().containsKey(DOCKER_CONTAINER_NAME_KEY)) {
 			if(appInstanceNumber.isPresent()) {
 				commands.add(String.format("--name=%s-%d", request.getDeploymentProperties().get(DOCKER_CONTAINER_NAME_KEY), appInstanceNumber.get()));

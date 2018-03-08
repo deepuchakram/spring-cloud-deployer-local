@@ -178,11 +178,11 @@ public abstract class AbstractLocalDeployerSupport {
 
 		if (request.getResource() instanceof DockerResource) {
 			commands = this.dockerCommandBuilder.buildExecutionCommand(request,
-					appPropertiesToUse, Collections.emptyMap(), appInstanceNumber);
+					appPropertiesToUse, appInstanceNumber);
 		}
 		else {
 			commands = this.javaCommandBuilder.buildExecutionCommand(request,
-					appPropertiesToUse, Collections.emptyMap(), appInstanceNumber);
+					appPropertiesToUse, appInstanceNumber);
 		}
 
 		// tweak escaping double quotes needed for windows

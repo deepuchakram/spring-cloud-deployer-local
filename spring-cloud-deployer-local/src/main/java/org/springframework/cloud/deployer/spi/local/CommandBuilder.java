@@ -33,11 +33,9 @@ public interface CommandBuilder {
 	 *
 	 * @param request the request for the application to execute
 	 * @param appInstanceEnv the env vars tha might be needed when building the execution command
-	 * @param appProperties the app properties to use when building the execution command
 	 * @return the build command as a string array
 	 */
 	String[] buildExecutionCommand(AppDeploymentRequest request,
 								   Map<String, String> appInstanceEnv,
-								   Map<String, String> appProperties,
 								   Optional<Integer> appInstanceNumber);
 }
