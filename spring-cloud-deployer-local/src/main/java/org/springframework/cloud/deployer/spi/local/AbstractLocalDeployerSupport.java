@@ -219,6 +219,8 @@ public abstract class AbstractLocalDeployerSupport {
 					portToUse));
 		}
 
+		logger.info(String.format("Command to be executed: %s", String.join(" ", builder.command())));
+
 		return builder;
 	}
 
