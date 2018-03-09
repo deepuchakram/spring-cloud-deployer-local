@@ -17,10 +17,13 @@ package org.springframework.cloud.deployer.spi.local;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,8 @@ import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
  * @author Michael Minella
  */
 public class DockerCommandBuilder implements CommandBuilder {
+
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	/**
 	 * Name of the deployment property used to specify the container name pattern to use.
@@ -67,6 +72,8 @@ public class DockerCommandBuilder implements CommandBuilder {
 			commands.add(String.format("%s=%s", env, appInstanceEnv.get(env)));
 		}
 
+		setPort(commands, appInstanceEnv);
+
 		if(request.getDeploymentProperties().containsKey(DOCKER_CONTAINER_NAME_KEY)) {
 			if(appInstanceNumber.isPresent()) {
 				commands.add(String.format("--name=%s-%d", request.getDeploymentProperties().get(DOCKER_CONTAINER_NAME_KEY), appInstanceNumber.get()));
@@ -86,5 +93,29 @@ public class DockerCommandBuilder implements CommandBuilder {
 		}
 
 		return commands;
+	}
+
+	private void setPort(List<String> commands, Map<String, String> appInstanceEnv) {
+
+		String port;
+
+		if(appInstanceEnv.containsKey(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON)) {
+			Map<String, String> properties = new HashMap<>();
+
+			try {
+				properties.putAll(OBJECT_MAPPER.readValue(appInstanceEnv.get(AbstractLocalDeployerSupport.SPRING_APPLICATION_JSON), new TypeReference<HashMap<String,Object>>() {}));
+			}
+			catch (IOException e) {
+				throw new IllegalArgumentException("Unable to determine server port from SPRING_APPLICATION_JSON");
+			}
+
+			port = properties.get(LocalAppDeployer.SERVER_PORT_KEY);
+		}
+		else {
+			port = appInstanceEnv.get(LocalAppDeployer.SERVER_PORT_KEY);
+		}
+
+		commands.add("-p");
+		commands.add(String.format("%s:%s", port, port));
 	}
 }

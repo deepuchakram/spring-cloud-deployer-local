@@ -76,7 +76,7 @@ public class LocalAppDeployerIntegrationTests extends AbstractAppDeployerIntegra
 	@Autowired
 	private AppDeployer appDeployer;
 
-	@Value("${spring-cloud-deployer-spi-test-use-docker:false}")
+	@Value("${spring-cloud-deployer-spi-test-use-docker:true}")
 	private boolean useDocker;
 
 	@Override

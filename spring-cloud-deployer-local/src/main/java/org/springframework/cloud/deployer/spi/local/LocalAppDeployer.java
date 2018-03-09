@@ -219,7 +219,7 @@ public class LocalAppDeployer extends AbstractLocalDeployerSupport implements Ap
 				group + "-" + System.currentTimeMillis());
 		if (!Files.exists(deploymentGroupDir)) {
 			Files.createDirectory(deploymentGroupDir);
-			deploymentGroupDir.toFile().deleteOnExit();
+//			deploymentGroupDir.toFile().deleteOnExit();
 		}
 		return deploymentGroupDir;
 	}
