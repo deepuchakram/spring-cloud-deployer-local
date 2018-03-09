@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
+import org.springframework.util.StringUtils;
 
 /**
  * Command builder used to craft the command used when running apps inside docker containers.
@@ -115,7 +116,9 @@ public class DockerCommandBuilder implements CommandBuilder {
 			port = appInstanceEnv.get(LocalAppDeployer.SERVER_PORT_KEY);
 		}
 
-		commands.add("-p");
-		commands.add(String.format("%s:%s", port, port));
+		if(StringUtils.hasText(port)) {
+			commands.add("-p");
+			commands.add(String.format("%s:%s", port, port));
+		}
 	}
 }
