@@ -110,7 +110,6 @@ public abstract class AbstractLocalDeployerSupport {
 			logger.warn("Deploying app with deploymentId {}.  Application Startup will be suspended until remote "
 					+ "debugging session is established.");
 		}
-
 		return debugCommand;
 	}
 
@@ -212,11 +211,18 @@ public abstract class AbstractLocalDeployerSupport {
 
 			int portToUse = calculateDebugPort(request.getDeploymentProperties(), appInstanceNumber.orElse(0));
 
-			builder.command().add(1, this.buildRemoteDebugInstruction(
+			String debugProperty = this.buildRemoteDebugInstruction(
 					request.getDeploymentProperties(),
 					deploymentId,
 					appInstanceNumber.orElse(0),
-					portToUse));
+					portToUse);
+			if (!(request.getResource() instanceof DockerResource)) {
+				builder.command().add(1, debugProperty);
+			}
+			if (request.getResource() instanceof DockerResource) {
+				builder.command().add(2, "-e");
+				builder.command().add(3, "JAVA_OPTS=\\\""+ debugProperty + "\\\"");
+			}
 		}
 
 		logger.info(String.format("Command to be executed: %s", String.join(" ", builder.command())));

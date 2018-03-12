@@ -212,7 +212,7 @@ public class LocalAppDeployerIntegrationTests extends AbstractAppDeployerIntegra
 		String deploymentId = deployer.deploy(request);
 		Thread.sleep(5000);
 		AppStatus appStatus = deployer.status(deploymentId);
-		assertEquals("deploying", appStatus.toString());
+		assertEquals("deployed", appStatus.toString());
 		deployer.undeploy(deploymentId);
 	}
 
