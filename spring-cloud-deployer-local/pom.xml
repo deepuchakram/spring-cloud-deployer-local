@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>spring-cloud-deployer-local</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>spring-cloud-deployer-local</name>
 	<description>Spring Cloud Local Deployer</description>
@@ -59,6 +59,17 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<plugins>
+		<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+	</plugins>		
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
